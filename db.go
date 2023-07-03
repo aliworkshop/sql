@@ -87,10 +87,6 @@ func (db *db) GetGormDB(queries ...dbcore.QueryModel) *gorm.DB {
 		if model != nil {
 			return gormDb.Model(model)
 		}
-		models := q.GetModels()
-		if models != nil {
-			return gormDb.Model(models)
-		}
 	}
 	return gormDb
 }

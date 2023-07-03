@@ -1,10 +1,11 @@
 package sql
 
 import (
-	"github.com/aliworkshop/errorslib"
 	"github.com/aliworkshop/dbcore"
+	"github.com/aliworkshop/errorslib"
 	"gorm.io/gorm"
 	"gorm.io/hints"
+	"reflect"
 )
 
 func (db *db) GetByFunction(query dbcore.QueryModel, function string) (resultByFunction interface{}, err errorslib.ErrorModel) {
@@ -61,14 +62,16 @@ func (db *db) GetDbItems(gq *gorm.DB, query dbcore.QueryModel) (pr interface{}, 
 	for _, sel := range query.GetSelects() {
 		q = q.Select(sel.Columns, db.handleArgs(sel.Args))
 	}
-	result := query.GetModels()
+
+	typ := reflect.TypeOf(query.GetModel())
+	result := reflect.New(reflect.SliceOf(typ)).Elem().Interface()
 	if table, args := query.GetTable(); table != "" {
 		q.Table(table, db.handleArgs(args))
 	}
 	for _, field := range query.GetGroupBy() {
 		q = q.Group(field)
 	}
-	dbc := q.Offset(offset).Limit(query.GetPageSize()).Find(result)
+	dbc := q.Offset(offset).Limit(query.GetPageSize()).Find(&result)
 	if dbc.Error != nil {
 		return nil, errorHandler(errorslib.Internal(dbc.Error))
 	}
