@@ -3,7 +3,7 @@ package sql
 import (
 	"fmt"
 	"github.com/aliworkshop/dbcore"
-	"github.com/aliworkshop/dfilterlib"
+	"github.com/aliworkshop/dfilter"
 	"gorm.io/gorm"
 	"strings"
 )
@@ -53,7 +53,7 @@ func (db *db) dFilter(dbQuery *gorm.DB, query dbcore.QueryModel) (q *gorm.DB, fi
 				continue
 			}
 		}
-		if v.ValueType == dfilterlib.Null {
+		if v.ValueType == dfilter.Null {
 			q = q.Where(fmt.Sprintf("%s IS NULL", v.Key))
 			continue
 		}

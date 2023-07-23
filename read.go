@@ -2,13 +2,13 @@ package sql
 
 import (
 	"github.com/aliworkshop/dbcore"
-	"github.com/aliworkshop/errorslib"
+	"github.com/aliworkshop/error"
 	"gorm.io/gorm"
 	"gorm.io/hints"
 	"reflect"
 )
 
-func (db *db) GetByFunction(query dbcore.QueryModel, function string) (resultByFunction interface{}, err errorslib.ErrorModel) {
+func (db *db) GetByFunction(query dbcore.QueryModel, function string) (resultByFunction interface{}, err error.ErrorModel) {
 	q := db.GetGormDB(query)
 	//q, _ = db.Filter(q, query)
 	switch function {
@@ -18,30 +18,30 @@ func (db *db) GetByFunction(query dbcore.QueryModel, function string) (resultByF
 		resultByFunction = count
 	}
 	if q.Error != nil {
-		err = errorHandler(errorslib.Internal(q.Error))
+		err = errorHandler(error.Internal(q.Error))
 		return
 	}
 	return
 }
 
-func (db *db) GetDbItemsCount(gq *gorm.DB, query dbcore.QueryModel) (uint64, errorslib.ErrorModel) {
+func (db *db) GetDbItemsCount(gq *gorm.DB, query dbcore.QueryModel) (uint64, error.ErrorModel) {
 	gq, _ = db.Filter(gq, query)
 	gq = db.handleQueryActions(gq, query)
 	gq = db.Join(gq, query)
 	var c int64
 	r := gq.Count(&c)
 	if r.Error != nil {
-		return 0, errorHandler(errorslib.Internal(r.Error))
+		return 0, errorHandler(error.Internal(r.Error))
 	}
 	return uint64(c), nil
 }
 
-func (db *db) GetItemsCount(query dbcore.QueryModel) (count uint64, err errorslib.ErrorModel) {
+func (db *db) GetItemsCount(query dbcore.QueryModel) (count uint64, err error.ErrorModel) {
 	dbQuery := db.GetGormDB(query)
 	return db.GetDbItemsCount(dbQuery, query)
 }
 
-func (db *db) GetItemsCountWithDFilters(query dbcore.QueryModel) (count uint64, err errorslib.ErrorModel) {
+func (db *db) GetItemsCountWithDFilters(query dbcore.QueryModel) (count uint64, err error.ErrorModel) {
 	gq := db.GetGormDB(query)
 	gq, _ = db.dFilter(gq, query)
 	return db.GetDbItemsCount(gq, query)
@@ -49,7 +49,7 @@ func (db *db) GetItemsCountWithDFilters(query dbcore.QueryModel) (count uint64, 
 
 // GetDbItems handle get items using given gq.
 // parameter gq is gorm query which is already initialized by caller
-func (db *db) GetDbItems(gq *gorm.DB, query dbcore.QueryModel) (pr interface{}, err errorslib.ErrorModel) {
+func (db *db) GetDbItems(gq *gorm.DB, query dbcore.QueryModel) (pr interface{}, err error.ErrorModel) {
 	q, _ := db.Filter(gq, query)
 	q = db.handleQueryActions(q, query)
 	q, err = db.sort(q, query)
@@ -73,28 +73,28 @@ func (db *db) GetDbItems(gq *gorm.DB, query dbcore.QueryModel) (pr interface{}, 
 	}
 	dbc := q.Offset(offset).Limit(query.GetPageSize()).Find(&result)
 	if dbc.Error != nil {
-		return nil, errorHandler(errorslib.Internal(dbc.Error))
+		return nil, errorHandler(error.Internal(dbc.Error))
 	}
 	return result, nil
 }
 
-func (db *db) GetItems(query dbcore.QueryModel) (pr interface{}, err errorslib.ErrorModel) {
+func (db *db) GetItems(query dbcore.QueryModel) (pr interface{}, err error.ErrorModel) {
 	gq := db.GetGormDB(query)
 	return db.GetDbItems(gq, query)
 }
 
-func (db *db) GetItemsWithDFilters(query dbcore.QueryModel) (items interface{}, err errorslib.ErrorModel) {
+func (db *db) GetItemsWithDFilters(query dbcore.QueryModel) (items interface{}, err error.ErrorModel) {
 	gq := db.GetGormDB(query)
 	gq, _ = db.dFilter(gq, query)
 	return db.GetDbItems(gq, query)
 }
 
-func (db *db) GetItem(query dbcore.QueryModel) (item interface{}, err errorslib.ErrorModel) {
+func (db *db) GetItem(query dbcore.QueryModel) (item interface{}, err error.ErrorModel) {
 	q := db.GetGormDB(query)
 	q, filtered := db.Filter(q, query)
 	if !filtered {
-		err = errorHandler(errorslib.New().
-			WithType(errorslib.TypeValidation).
+		err = errorHandler(error.New().
+			WithType(error.TypeValidation).
 			WithDetail("query must be set..no query is set as filter"))
 		return
 	}
@@ -114,7 +114,7 @@ func (db *db) GetItem(query dbcore.QueryModel) (item interface{}, err errorslib.
 	}
 	dbc := q.Find(result)
 	if dbc.Error != nil {
-		err = errorslib.Internal(dbc.Error)
+		err = error.Internal(dbc.Error)
 		return
 	}
 	if dbc.RowsAffected == 0 {

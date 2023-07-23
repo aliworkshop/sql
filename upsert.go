@@ -2,14 +2,14 @@ package sql
 
 import (
 	"github.com/aliworkshop/dbcore"
-	"github.com/aliworkshop/errorslib"
+	"github.com/aliworkshop/error"
 	"gorm.io/gorm/clause"
 )
 
-func (db *db) Upsert(query dbcore.QueryModel) (err errorslib.ErrorModel) {
+func (db *db) Upsert(query dbcore.QueryModel) (err error.ErrorModel) {
 	entity := query.GetBody()
 	if entity == nil {
-		err = errorHandler(errorslib.DefaultValidationError)
+		err = errorHandler(error.DefaultValidationError)
 		return
 	}
 	q := db.GetGormDB(query)
@@ -20,7 +20,7 @@ func (db *db) Upsert(query dbcore.QueryModel) (err errorslib.ErrorModel) {
 			UpdateAll: true,
 		}).Create(entity)
 	if dbc.Error != nil {
-		err = errorHandler(errorslib.Internal(dbc.Error))
+		err = errorHandler(error.Internal(dbc.Error))
 		return
 	}
 	return

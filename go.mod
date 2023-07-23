@@ -1,12 +1,12 @@
-module github.com/aliworkshop/sqllib
+module github.com/aliworkshop/sql
 
 go 1.18
 
 require (
-	github.com/aliworkshop/configlib v1.0.0
-	github.com/aliworkshop/dbcore v1.1.0
-	github.com/aliworkshop/dfilterlib v1.0.0
-	github.com/aliworkshop/errorslib v1.0.0
+	github.com/aliworkshop/configer v1.1.0
+	github.com/aliworkshop/dbcore v1.2.0
+	github.com/aliworkshop/dfilter v1.1.0
+	github.com/aliworkshop/error v1.1.0
 	github.com/shopspring/decimal v1.3.1
 	gorm.io/driver/mysql v1.4.6
 	gorm.io/driver/postgres v1.4.7

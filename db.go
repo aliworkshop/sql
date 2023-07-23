@@ -4,14 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/aliworkshop/configer"
 	"gorm.io/gorm/logger"
 	"log"
 	"os"
 	"time"
 
-	"github.com/aliworkshop/configlib"
 	"github.com/aliworkshop/dbcore"
-	"github.com/aliworkshop/errorslib"
+	"github.com/aliworkshop/error"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
@@ -24,7 +24,7 @@ type db struct {
 	gormDB      *gorm.DB
 }
 
-func NewRepository(configRegistry configlib.Registry, parser dbcore.QueryParser) dbcore.DBModel {
+func NewRepository(configRegistry configer.Registry, parser dbcore.QueryParser) dbcore.DBModel {
 	db := new(db)
 	// load config
 	err := configRegistry.Root().Unmarshal(&db.config)
@@ -39,22 +39,6 @@ func NewRepository(configRegistry configlib.Registry, parser dbcore.QueryParser)
 	db.queryParser = parser
 	return db
 }
-
-//func NewMockRepository(dialect string) (*db, sqlmock.Sqlmock) {
-//	sql, mock, _ := sqlmock.New()
-//	switch dialect {
-//	case "mysql":
-//		dialect = mysql.Open(sql.)
-//	case "postgres":
-//		dialect = postgres.Open(connStr)
-//	}
-//	d, _ := gorm.Open(sql, sql)
-//	d = d.Debug()
-//	//
-//	repo := new(db)
-//	repo.gormDB = d
-//	return repo, mock
-//}
 
 func (db *db) DB() interface{} {
 	return db.gormDB
@@ -99,7 +83,7 @@ func (db *db) GetTransaction(query dbcore.QueryModel) (transaction interface{}) 
 	return query.GetTransaction()
 }
 
-func (db *db) Initialize() errorslib.ErrorModel {
+func (db *db) Initialize() error.ErrorModel {
 	if db.config.Sql.Dialect == "" {
 		panic("sql dialect is not determined")
 	}
@@ -140,11 +124,11 @@ func (db *db) Initialize() errorslib.ErrorModel {
 		},
 	})
 	if err != nil {
-		return errorslib.Internal(err)
+		return error.Internal(err)
 	}
 	sqlDB, err := d.DB()
 	if err != nil {
-		return errorslib.Internal(err)
+		return error.Internal(err)
 	}
 	if db.config.Sql.MaxIdleConnections != nil {
 		sqlDB.SetMaxIdleConns(*db.config.Sql.MaxIdleConnections)
@@ -175,7 +159,7 @@ func (db *db) getTx(query dbcore.QueryModel) *gorm.DB {
 	return nil
 }
 
-func (db *db) BeginTx(ctx context.Context, query dbcore.QueryModel, args ...interface{}) (err errorslib.ErrorModel) {
+func (db *db) BeginTx(ctx context.Context, query dbcore.QueryModel, args ...interface{}) (err error.ErrorModel) {
 	tx := db.getTx(query)
 	if tx == nil {
 		var opts *sql.TxOptions
@@ -183,88 +167,88 @@ func (db *db) BeginTx(ctx context.Context, query dbcore.QueryModel, args ...inte
 			if o, ok := args[0].(*sql.TxOptions); ok {
 				opts = o
 			} else {
-				return errorslib.Internal().WithDetail("can not parse args to *sql.TxOptions")
+				return error.Internal().WithDetail("can not parse args to *sql.TxOptions")
 			}
 		}
 		tx = db.gormDB.WithContext(ctx).Begin(opts)
 	}
 	if tx.Error != nil {
-		err = errorslib.Internal(tx.Error)
+		err = error.Internal(tx.Error)
 		return
 	}
 	query.SetTransaction(tx)
 	return
 }
 
-func (db *db) StartTransaction(query dbcore.QueryModel) (err errorslib.ErrorModel) {
+func (db *db) StartTransaction(query dbcore.QueryModel) (err error.ErrorModel) {
 	tx := db.getTx(query)
 	if tx == nil {
 		tx = db.gormDB.Begin()
 	}
 	if tx.Error != nil {
-		err = errorslib.Internal(tx.Error)
+		err = error.Internal(tx.Error)
 		return
 	}
 	query.SetTransaction(tx)
 	return
 }
 
-func (db *db) CommitTransaction(query dbcore.QueryModel) (err errorslib.ErrorModel) {
+func (db *db) CommitTransaction(query dbcore.QueryModel) (err error.ErrorModel) {
 	tx := db.getTx(query)
 	if tx == nil {
 		return
 	}
 	dbc := tx.Commit()
 	if dbc.Error != nil {
-		err = errorslib.Internal(dbc.Error)
+		err = error.Internal(dbc.Error)
 		return
 	}
 	return
 }
 
-func (db *db) RollbackTransaction(query dbcore.QueryModel) (err errorslib.ErrorModel) {
+func (db *db) RollbackTransaction(query dbcore.QueryModel) (err error.ErrorModel) {
 	tx := db.getTx(query)
 	if tx == nil {
 		return
 	}
 	dbc := tx.Rollback()
 	if dbc.Error != nil {
-		err = errorslib.Internal(dbc.Error)
+		err = error.Internal(dbc.Error)
 		return
 	}
 	return
 }
 
 func (db *db) FinalizeTransaction(ctx context.Context, query dbcore.QueryModel,
-	err errorslib.ErrorModel) errorslib.ErrorModel {
+	err error.ErrorModel) error.ErrorModel {
 	if err == nil {
-		err = errorslib.HandleError(ctx.Err())
+		err = error.HandleError(ctx.Err())
 	}
 	if err != nil {
 		e := db.RollbackTransaction(query)
-		if rErr := errorslib.HandleError(e); rErr != nil {
+		if rErr := error.HandleError(e); rErr != nil {
 			return rErr
 		}
 		return err
 	}
 	err = db.CommitTransaction(query)
-	if err = errorslib.HandleError(err); err != nil {
+	if err = error.HandleError(err); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (db *db) Ping(ctx context.Context) errorslib.ErrorModel {
+func (db *db) Ping(ctx context.Context) error.ErrorModel {
 	if db.gormDB == nil {
-		return errorslib.DefaultValidationError.WithDetail("db not initialized")
+		return error.DefaultValidationError.WithDetail("db not initialized")
 	}
 	sqlDb, err := db.gormDB.DB()
 	if err != nil {
-		return errorslib.HandleError(err)
+		return error.HandleError(err)
 	}
 	err = sqlDb.PingContext(ctx)
 	if err != nil {
-		return errorslib.Internal(err)
+		return error.Internal(err)
 	}
 	return nil
 }

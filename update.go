@@ -2,14 +2,14 @@ package sql
 
 import (
 	"github.com/aliworkshop/dbcore"
-	"github.com/aliworkshop/errorslib"
+	"github.com/aliworkshop/error"
 	"reflect"
 )
 
-func (db *db) Update(query dbcore.QueryModel) (err errorslib.ErrorModel) {
+func (db *db) Update(query dbcore.QueryModel) (err error.ErrorModel) {
 	entity := query.GetBody()
 	if entity == nil {
-		err = errorHandler(errorslib.DefaultValidationError)
+		err = errorHandler(error.DefaultValidationError)
 		return
 	}
 	q := db.GetGormDB(query)
@@ -17,16 +17,16 @@ func (db *db) Update(query dbcore.QueryModel) (err errorslib.ErrorModel) {
 	q, _ = db.Filter(q, query)
 	dbc := q.Updates(entity)
 	if dbc.Error != nil {
-		err = errorHandler(errorslib.Internal(dbc.Error))
+		err = errorHandler(error.Internal(dbc.Error))
 		return
 	}
 	return
 }
 
-func (db *db) UpdateMap(query dbcore.QueryModel) (err errorslib.ErrorModel) {
+func (db *db) UpdateMap(query dbcore.QueryModel) (err error.ErrorModel) {
 	entity := query.GetBody()
 	if entity == nil {
-		err = errorHandler(errorslib.DefaultValidationError)
+		err = errorHandler(error.DefaultValidationError)
 		return
 	}
 	q := db.GetGormDB(query)
@@ -34,7 +34,7 @@ func (db *db) UpdateMap(query dbcore.QueryModel) (err errorslib.ErrorModel) {
 	q, _ = db.Filter(q, query)
 	dbc := q.Updates(structToMap(entity))
 	if dbc.Error != nil {
-		err = errorHandler(errorslib.Internal(dbc.Error))
+		err = errorHandler(error.Internal(dbc.Error))
 		return
 	}
 	return
