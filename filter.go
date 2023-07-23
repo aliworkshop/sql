@@ -10,10 +10,23 @@ import (
 
 func (db *db) Filter(gormQuery *gorm.DB, query dbcore.QueryModel) (q *gorm.DB, filtered bool) {
 	q = gormQuery
-	filters := query.GetFilters()
-	if filters != nil && len(filters) > 0 {
-		for k, v := range filters {
-			q = q.Where(fmt.Sprintf(`%s=?`, k), v)
+
+	if filters := query.GetFilters(); len(filters) > 0 {
+		for _, filter := range filters {
+			for k, v := range filter.Get() {
+				q = q.Where(fmt.Sprintf(`%s=?`, k), v)
+			}
+		}
+		filtered = true
+	}
+	if filters := query.GetOrFilters(); len(filters) > 0 {
+		for _, filter := range filters {
+			s, vals := "", []any{}
+			for k, v := range filter.Get() {
+				s += fmt.Sprintf("%s = ? and ", k)
+				vals = append(vals, v)
+			}
+			q = q.Or(s[:len(s)-4], vals...)
 		}
 		filtered = true
 	}
@@ -24,6 +37,7 @@ func (db *db) Filter(gormQuery *gorm.DB, query dbcore.QueryModel) (q *gorm.DB, f
 			filtered = true
 		}
 	}
+
 	if db.queryParser != nil {
 		pr := db.queryParser.Parse(query)
 		if pr != nil {
