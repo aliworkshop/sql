@@ -75,8 +75,3 @@ func (db *db) dFilter(dbQuery *gorm.DB, query dbcore.QueryModel) (q *gorm.DB, fi
 	}
 	return
 }
-
-func (db *db) DFilter(query dbcore.QueryModel) (dbQuery interface{}, filtered bool) {
-	gormDb := db.GetGormDB(query)
-	return db.dFilter(gormDb, query)
-}

@@ -10,7 +10,6 @@ import (
 
 func (db *db) sum(g *gorm.DB, query dbcore.QueryModel, key string) (decimal.Decimal, error.ErrorModel) {
 	q, _ := db.Filter(g, query)
-	q = db.handleQueryActions(q, query)
 	var sum = new(decimal.Decimal)
 	q = db.Join(q, query)
 	for _, field := range query.GetGroupBy() {

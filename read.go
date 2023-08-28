@@ -8,25 +8,8 @@ import (
 	"reflect"
 )
 
-func (db *db) GetByFunction(query dbcore.QueryModel, function string) (resultByFunction interface{}, err error.ErrorModel) {
-	q := db.GetGormDB(query)
-	//q, _ = db.Filter(q, query)
-	switch function {
-	case "count":
-		var count int64
-		q = q.Count(&count)
-		resultByFunction = count
-	}
-	if q.Error != nil {
-		err = errorHandler(error.Internal(q.Error))
-		return
-	}
-	return
-}
-
-func (db *db) GetDbItemsCount(gq *gorm.DB, query dbcore.QueryModel) (uint64, error.ErrorModel) {
+func (db *db) count(gq *gorm.DB, query dbcore.QueryModel) (uint64, error.ErrorModel) {
 	gq, _ = db.Filter(gq, query)
-	gq = db.handleQueryActions(gq, query)
 	gq = db.Join(gq, query)
 	var c int64
 	r := gq.Count(&c)
@@ -36,22 +19,19 @@ func (db *db) GetDbItemsCount(gq *gorm.DB, query dbcore.QueryModel) (uint64, err
 	return uint64(c), nil
 }
 
-func (db *db) GetItemsCount(query dbcore.QueryModel) (count uint64, err error.ErrorModel) {
+func (db *db) Count(query dbcore.QueryModel) (count uint64, err error.ErrorModel) {
 	dbQuery := db.GetGormDB(query)
-	return db.GetDbItemsCount(dbQuery, query)
+	return db.count(dbQuery, query)
 }
 
-func (db *db) GetItemsCountWithDFilters(query dbcore.QueryModel) (count uint64, err error.ErrorModel) {
+func (db *db) CountWithDFilter(query dbcore.QueryModel) (count uint64, err error.ErrorModel) {
 	gq := db.GetGormDB(query)
 	gq, _ = db.dFilter(gq, query)
-	return db.GetDbItemsCount(gq, query)
+	return db.count(gq, query)
 }
 
-// GetDbItems handle get items using given gq.
-// parameter gq is gorm query which is already initialized by caller
-func (db *db) GetDbItems(gq *gorm.DB, query dbcore.QueryModel) (pr interface{}, err error.ErrorModel) {
+func (db *db) list(gq *gorm.DB, query dbcore.QueryModel) (pr interface{}, err error.ErrorModel) {
 	q, _ := db.Filter(gq, query)
-	q = db.handleQueryActions(q, query)
 	q, err = db.sort(q, query)
 	if err != nil {
 		return nil, err
@@ -78,18 +58,18 @@ func (db *db) GetDbItems(gq *gorm.DB, query dbcore.QueryModel) (pr interface{}, 
 	return result, nil
 }
 
-func (db *db) GetItems(query dbcore.QueryModel) (pr interface{}, err error.ErrorModel) {
+func (db *db) List(query dbcore.QueryModel) (pr interface{}, err error.ErrorModel) {
 	gq := db.GetGormDB(query)
-	return db.GetDbItems(gq, query)
+	return db.list(gq, query)
 }
 
-func (db *db) GetItemsWithDFilters(query dbcore.QueryModel) (items interface{}, err error.ErrorModel) {
+func (db *db) ListWithDFilter(query dbcore.QueryModel) (items interface{}, err error.ErrorModel) {
 	gq := db.GetGormDB(query)
 	gq, _ = db.dFilter(gq, query)
-	return db.GetDbItems(gq, query)
+	return db.list(gq, query)
 }
 
-func (db *db) GetItem(query dbcore.QueryModel) (item interface{}, err error.ErrorModel) {
+func (db *db) Get(query dbcore.QueryModel) (item interface{}, err error.ErrorModel) {
 	q := db.GetGormDB(query)
 	q, filtered := db.Filter(q, query)
 	if !filtered {
@@ -104,7 +84,6 @@ func (db *db) GetItem(query dbcore.QueryModel) (item interface{}, err error.Erro
 	}
 	q = db.Join(q, query)
 	q = q.Limit(1)
-	q = db.handleQueryActions(q, query)
 	for _, sel := range query.GetSelects() {
 		q = q.Select(sel.Columns, db.handleArgs(sel.Args))
 	}

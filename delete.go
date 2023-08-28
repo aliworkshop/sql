@@ -17,7 +17,6 @@ func (db *db) Delete(query dbcore.QueryModel) (err error.ErrorModel) {
 			WithMessage("you can not delete all items"))
 		return
 	}
-	q = db.handleQueryActions(q, query)
 	dbc := q.Delete(model)
 	if dbc.Error != nil {
 		err = errorHandler(error.Internal(dbc.Error))

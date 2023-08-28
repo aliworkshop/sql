@@ -13,7 +13,6 @@ func (db *db) Upsert(query dbcore.QueryModel) (err error.ErrorModel) {
 		return
 	}
 	q := db.GetGormDB(query)
-	q = db.handleQueryActions(q, query)
 	q, _ = db.Filter(q, query)
 	dbc := q.
 		Clauses(clause.OnConflict{
