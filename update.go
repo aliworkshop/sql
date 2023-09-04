@@ -5,7 +5,7 @@ import (
 	"github.com/aliworkshop/error"
 )
 
-func (db *db) Update(query dbcore.QueryModel) (err error.ErrorModel) {
+func (db *repo) Update(query dbcore.QueryModel) (err error.ErrorModel) {
 	entity := query.GetBody()
 	if entity == nil {
 		err = errorHandler(error.DefaultValidationError)

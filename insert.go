@@ -5,7 +5,7 @@ import (
 	"github.com/aliworkshop/error"
 )
 
-func (db *db) Insert(query dbcore.QueryModel) (result interface{}, err error.ErrorModel) {
+func (db *repo) Insert(query dbcore.QueryModel) (result interface{}, err error.ErrorModel) {
 	result = query.GetBody()
 	if result == nil {
 		err = errorHandler(error.New().

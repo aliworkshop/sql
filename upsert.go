@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func (db *db) Upsert(query dbcore.QueryModel) (err error.ErrorModel) {
+func (db *repo) Upsert(query dbcore.QueryModel) (err error.ErrorModel) {
 	entity := query.GetBody()
 	if entity == nil {
 		err = errorHandler(error.DefaultValidationError)

@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func (db *db) Filter(gormQuery *gorm.DB, query dbcore.QueryModel) (q *gorm.DB, filtered bool) {
+func (db *repo) Filter(gormQuery *gorm.DB, query dbcore.QueryModel) (q *gorm.DB, filtered bool) {
 	q = gormQuery
 
 	if filters := query.GetFilters(); len(filters) > 0 {
@@ -50,7 +50,7 @@ func (db *db) Filter(gormQuery *gorm.DB, query dbcore.QueryModel) (q *gorm.DB, f
 	return
 }
 
-func (db *db) dFilter(dbQuery *gorm.DB, query dbcore.QueryModel) (q *gorm.DB, filtered bool) {
+func (db *repo) dFilter(dbQuery *gorm.DB, query dbcore.QueryModel) (q *gorm.DB, filtered bool) {
 	q = dbQuery
 	for _, v := range query.GetDynamicFilters() {
 		if t := query.GetDynamicFilterTable(); t != "" {

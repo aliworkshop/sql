@@ -5,7 +5,7 @@ import (
 	"github.com/aliworkshop/error"
 )
 
-func (db *db) Delete(query dbcore.QueryModel) (err error.ErrorModel) {
+func (db *repo) Delete(query dbcore.QueryModel) (err error.ErrorModel) {
 	model := query.GetModel()
 	q := db.GetGormDB(query).Model(model)
 	q, filtered := db.Filter(q, query)

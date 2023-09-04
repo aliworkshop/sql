@@ -17,14 +17,14 @@ import (
 	"gorm.io/gorm"
 )
 
-type db struct {
+type repo struct {
 	config      config
 	queryParser dbcore.QueryParser
 	gormDB      *gorm.DB
 }
 
 func NewRepository(configRegistry configer.Registry, parser dbcore.QueryParser) dbcore.RDBMS {
-	db := new(db)
+	db := new(repo)
 	// load config
 	err := configRegistry.Root().Unmarshal(&db.config)
 	if err != nil {
@@ -39,11 +39,11 @@ func NewRepository(configRegistry configer.Registry, parser dbcore.QueryParser) 
 	return db
 }
 
-func (db *db) DB() interface{} {
+func (db *repo) DB() interface{} {
 	return db.gormDB
 }
 
-func (db *db) GetGormDB(queries ...dbcore.QueryModel) *gorm.DB {
+func (db *repo) GetGormDB(queries ...dbcore.QueryModel) *gorm.DB {
 	var q dbcore.QueryModel
 	if queries != nil && len(queries) > 0 {
 		q = queries[0]
@@ -74,15 +74,15 @@ func (db *db) GetGormDB(queries ...dbcore.QueryModel) *gorm.DB {
 	return gormDb
 }
 
-func (db *db) GetDB(queries ...dbcore.QueryModel) interface{} {
+func (db *repo) GetDB(queries ...dbcore.QueryModel) interface{} {
 	return db.GetGormDB(queries...)
 }
 
-func (db *db) GetTransaction(query dbcore.QueryModel) (transaction interface{}) {
+func (db *repo) GetTransaction(query dbcore.QueryModel) (transaction interface{}) {
 	return query.GetTransaction()
 }
 
-func (db *db) Initialize() error.ErrorModel {
+func (db *repo) Initialize() error.ErrorModel {
 	if db.config.Sql.Dialect == "" {
 		panic("sql dialect is not determined")
 	}
@@ -146,7 +146,7 @@ func (db *db) Initialize() error.ErrorModel {
 	return nil
 }
 
-func (db *db) Ping(ctx context.Context) error.ErrorModel {
+func (db *repo) Ping(ctx context.Context) error.ErrorModel {
 	if db.gormDB == nil {
 		return error.DefaultValidationError.WithDetail("db not initialized")
 	}

@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func (db *db) getTx(query dbcore.QueryModel) *gorm.DB {
+func (db *repo) getTx(query dbcore.QueryModel) *gorm.DB {
 	if query == nil {
 		return nil
 	}
@@ -19,7 +19,7 @@ func (db *db) getTx(query dbcore.QueryModel) *gorm.DB {
 	return nil
 }
 
-func (db *db) StartTransaction(query dbcore.QueryModel) (err error.ErrorModel) {
+func (db *repo) StartTransaction(query dbcore.QueryModel) (err error.ErrorModel) {
 	tx := db.getTx(query)
 	if tx == nil {
 		tx = db.gormDB.Begin()
@@ -32,7 +32,7 @@ func (db *db) StartTransaction(query dbcore.QueryModel) (err error.ErrorModel) {
 	return
 }
 
-func (db *db) CommitTransaction(query dbcore.QueryModel) (err error.ErrorModel) {
+func (db *repo) CommitTransaction(query dbcore.QueryModel) (err error.ErrorModel) {
 	tx := db.getTx(query)
 	if tx == nil {
 		return
@@ -45,7 +45,7 @@ func (db *db) CommitTransaction(query dbcore.QueryModel) (err error.ErrorModel) 
 	return
 }
 
-func (db *db) RollbackTransaction(query dbcore.QueryModel) (err error.ErrorModel) {
+func (db *repo) RollbackTransaction(query dbcore.QueryModel) (err error.ErrorModel) {
 	tx := db.getTx(query)
 	if tx == nil {
 		return
@@ -58,7 +58,7 @@ func (db *db) RollbackTransaction(query dbcore.QueryModel) (err error.ErrorModel
 	return
 }
 
-func (db *db) FinalizeTransaction(ctx context.Context, query dbcore.QueryModel,
+func (db *repo) FinalizeTransaction(ctx context.Context, query dbcore.QueryModel,
 	err error.ErrorModel) error.ErrorModel {
 	if err == nil {
 		err = error.HandleError(ctx.Err())

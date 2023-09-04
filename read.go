@@ -8,7 +8,7 @@ import (
 	"reflect"
 )
 
-func (db *db) count(gq *gorm.DB, query dbcore.QueryModel) (uint64, error.ErrorModel) {
+func (db *repo) count(gq *gorm.DB, query dbcore.QueryModel) (uint64, error.ErrorModel) {
 	gq, _ = db.Filter(gq, query)
 	gq = db.Join(gq, query)
 	var c int64
@@ -19,18 +19,18 @@ func (db *db) count(gq *gorm.DB, query dbcore.QueryModel) (uint64, error.ErrorMo
 	return uint64(c), nil
 }
 
-func (db *db) Count(query dbcore.QueryModel) (count uint64, err error.ErrorModel) {
+func (db *repo) Count(query dbcore.QueryModel) (count uint64, err error.ErrorModel) {
 	dbQuery := db.GetGormDB(query)
 	return db.count(dbQuery, query)
 }
 
-func (db *db) CountWithDFilter(query dbcore.QueryModel) (count uint64, err error.ErrorModel) {
+func (db *repo) CountWithDFilter(query dbcore.QueryModel) (count uint64, err error.ErrorModel) {
 	gq := db.GetGormDB(query)
 	gq, _ = db.dFilter(gq, query)
 	return db.count(gq, query)
 }
 
-func (db *db) list(gq *gorm.DB, query dbcore.QueryModel) (pr interface{}, err error.ErrorModel) {
+func (db *repo) list(gq *gorm.DB, query dbcore.QueryModel) (pr interface{}, err error.ErrorModel) {
 	q, _ := db.Filter(gq, query)
 	q, err = db.sort(q, query)
 	if err != nil {
@@ -58,18 +58,18 @@ func (db *db) list(gq *gorm.DB, query dbcore.QueryModel) (pr interface{}, err er
 	return result, nil
 }
 
-func (db *db) List(query dbcore.QueryModel) (pr interface{}, err error.ErrorModel) {
+func (db *repo) List(query dbcore.QueryModel) (pr interface{}, err error.ErrorModel) {
 	gq := db.GetGormDB(query)
 	return db.list(gq, query)
 }
 
-func (db *db) ListWithDFilter(query dbcore.QueryModel) (items interface{}, err error.ErrorModel) {
+func (db *repo) ListWithDFilter(query dbcore.QueryModel) (items interface{}, err error.ErrorModel) {
 	gq := db.GetGormDB(query)
 	gq, _ = db.dFilter(gq, query)
 	return db.list(gq, query)
 }
 
-func (db *db) Get(query dbcore.QueryModel) (item interface{}, err error.ErrorModel) {
+func (db *repo) Get(query dbcore.QueryModel) (item interface{}, err error.ErrorModel) {
 	q := db.GetGormDB(query)
 	q, filtered := db.Filter(q, query)
 	if !filtered {
@@ -104,7 +104,16 @@ func (db *db) Get(query dbcore.QueryModel) (item interface{}, err error.ErrorMod
 	return
 }
 
-func (db *db) handleHints(gq *gorm.DB, query dbcore.QueryModel) *gorm.DB {
+func (db *repo) Exist(query dbcore.QueryModel) (exists bool, err error.ErrorModel) {
+	count, e := db.Count(query)
+	if e != nil {
+		return false, e
+	}
+
+	return count > 0, nil
+}
+
+func (db *repo) handleHints(gq *gorm.DB, query dbcore.QueryModel) *gorm.DB {
 	h := query.GetHint()
 	if h != nil {
 		switch h.Kind {
@@ -125,7 +134,7 @@ func (db *db) handleHints(gq *gorm.DB, query dbcore.QueryModel) *gorm.DB {
 	return gq
 }
 
-func (db *db) handleArgs(args []interface{}) []interface{} {
+func (db *repo) handleArgs(args []interface{}) []interface{} {
 	for i, arg := range args {
 		if dbcore.IsQueryModel(arg) {
 			query := dbcore.GetQueryModel(arg)

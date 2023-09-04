@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func (db *db) sum(g *gorm.DB, query dbcore.QueryModel, key string) (decimal.Decimal, error.ErrorModel) {
+func (db *repo) sum(g *gorm.DB, query dbcore.QueryModel, key string) (decimal.Decimal, error.ErrorModel) {
 	q, _ := db.Filter(g, query)
 	var sum = new(decimal.Decimal)
 	q = db.Join(q, query)
@@ -25,13 +25,13 @@ func (db *db) sum(g *gorm.DB, query dbcore.QueryModel, key string) (decimal.Deci
 	return *sum, nil
 }
 
-func (db *db) Sum(query dbcore.QueryModel, key string) (decimal.Decimal, error.ErrorModel) {
+func (db *repo) Sum(query dbcore.QueryModel, key string) (decimal.Decimal, error.ErrorModel) {
 	model := query.GetModel()
 	dbQuery := db.GetGormDB(query).Model(model)
 	return db.sum(dbQuery, query, key)
 }
 
-func (db *db) SumWithDFilters(query dbcore.QueryModel, key string) (decimal.Decimal, error.ErrorModel) {
+func (db *repo) SumWithDFilters(query dbcore.QueryModel, key string) (decimal.Decimal, error.ErrorModel) {
 	gq := db.GetGormDB(query)
 	gq, _ = db.dFilter(gq, query)
 	return db.sum(gq, query, key)

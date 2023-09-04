@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func (db *db) sort(con *gorm.DB, query dbcore.QueryModel) (q *gorm.DB, err error.ErrorModel) {
+func (db *repo) sort(con *gorm.DB, query dbcore.QueryModel) (q *gorm.DB, err error.ErrorModel) {
 	q = con
 	sort := query.GetSort()
 	if sort != nil {
