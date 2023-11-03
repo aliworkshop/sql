@@ -13,20 +13,19 @@ func (db *repo) Filter(gormQuery *gorm.DB, query dbcore.QueryModel) (q *gorm.DB,
 
 	if filters := query.GetFilters(); len(filters) > 0 {
 		for _, filter := range filters {
-			for k, v := range filter.Get() {
-				q = q.Where(fmt.Sprintf(`%s=?`, k), v)
+			s, op, vals := "", "", []any{}
+			for _, m := range filter.GetMatches() {
+				op = string(m.Op)
+				s += fmt.Sprintf("%s %s ? %s ", m.Key, m.Operator, m.Op)
+				vals = append(vals, m.Value)
 			}
-		}
-		filtered = true
-	}
-	if filters := query.GetOrFilters(); len(filters) > 0 {
-		for _, filter := range filters {
-			s, vals := "", []any{}
-			for k, v := range filter.Get() {
-				s += fmt.Sprintf("%s = ? and ", k)
-				vals = append(vals, v)
+
+			s = s[:len(s)-len(op)-2]
+			if filter.GetOperation() == dbcore.And {
+				q = q.Where(s, vals...)
+			} else if filter.GetOperation() == dbcore.OR {
+				q = q.Or(s, vals...)
 			}
-			q = q.Or(s[:len(s)-4], vals...)
 		}
 		filtered = true
 	}

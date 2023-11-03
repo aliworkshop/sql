@@ -1,0 +1,6 @@
+debug: true
+dialect: mysql
+connectionString: user:password@tcp(localhost:3306)/db_name?parseTime=true
+maxIdleConnections: 5
+maxOpenConnections: 10
+maxLifetimeSeconds: 10

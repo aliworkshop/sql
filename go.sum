@@ -40,14 +40,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/aliworkshop/configer v1.1.0 h1:Q+rNMMhOyK8jmdzLm5FmHH2V18s1QS9ku0UBPHqXZdg=
 github.com/aliworkshop/configer v1.1.0/go.mod h1:vZpFM3xT0m2i8fMXdqGbxbzlJnIoHP7W8kJfQQV4ek0=
-github.com/aliworkshop/dbcore v1.2.0 h1:NhJesjUAfbZYwXZyKwkXcIbILgKcgYYmH4Lap87RYzs=
-github.com/aliworkshop/dbcore v1.2.0/go.mod h1:2OXpWvkU8uVfRkKm7obmuQMqt6ZxlGH4vgR+Ppx2PIg=
-github.com/aliworkshop/dbcore v1.3.0 h1:JPj/zoi85j8bPKXbuiO5xgzfRFMLCZF8F0Vnlc265Kg=
-github.com/aliworkshop/dbcore v1.3.0/go.mod h1:2OXpWvkU8uVfRkKm7obmuQMqt6ZxlGH4vgR+Ppx2PIg=
-github.com/aliworkshop/dbcore v1.4.0 h1:Vc3+o8WPVOpl38QIWZwbxnpouRlYTkXdaOn5wt+c9DE=
-github.com/aliworkshop/dbcore v1.4.0/go.mod h1:2OXpWvkU8uVfRkKm7obmuQMqt6ZxlGH4vgR+Ppx2PIg=
-github.com/aliworkshop/dbcore v1.4.1 h1:juu+RHlaFTLhFf88vyqZxuJF0JTnhU/L24rMy/rwXW8=
-github.com/aliworkshop/dbcore v1.4.1/go.mod h1:2OXpWvkU8uVfRkKm7obmuQMqt6ZxlGH4vgR+Ppx2PIg=
+github.com/aliworkshop/dbcore v1.6.1 h1:hujsxS8cCiGjt2aolWlwEfz7GMyiSXC70WP5L/4bD6I=
+github.com/aliworkshop/dbcore v1.6.1/go.mod h1:2OXpWvkU8uVfRkKm7obmuQMqt6ZxlGH4vgR+Ppx2PIg=
 github.com/aliworkshop/dfilter v1.1.0 h1:ODwiMms3OhF2lngUARDE6deGY/dyo5gjvvMkWOhztkU=
 github.com/aliworkshop/dfilter v1.1.0/go.mod h1:wk9VDPlWNI2i7ooDErr+mQhnQYCHOQq9it21d8Ik7dc=
 github.com/aliworkshop/error v1.1.0 h1:3FweSjOopjK77cUIf7Uc3xp5c4lwP7v7lHAuM9KNWvA=
