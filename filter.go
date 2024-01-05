@@ -52,6 +52,22 @@ func (db *repo) Filter(gormQuery *gorm.DB, query dbcore.QueryModel) (q *gorm.DB,
 func (db *repo) dFilter(dbQuery *gorm.DB, query dbcore.QueryModel) (q *gorm.DB, filtered bool) {
 	q = dbQuery
 	for _, v := range query.GetDynamicFilters() {
+		if v.KeyType == string(dfilter.Json) {
+			field := strings.Split(v.Key, ".")
+			switch v.Operator {
+			case dfilter.OperatorIn:
+				q = q.Where(fmt.Sprintf("JSON_CONTAINS(%s->'$.%s', '[%s]')", field[0], field[1], strings.Join(v.Value.([]string), ",")))
+			case dfilter.OperatorNotIn:
+				//todo: implement not in
+			case dfilter.OperatorEq:
+				q = q.Where(fmt.Sprintf("%s->>'$.%s' = ?", field[0], field[1]), v.Value)
+			case dfilter.OperatorNot:
+				q = q.Where(fmt.Sprintf("%s->>'$.%s' != ?", field[0], field[1]), v.Value)
+			default:
+				q = q.Where(fmt.Sprintf("%s->>'$.%s'%s?", field[0], field[1], v.SQLOperator), v.Value)
+			}
+			continue
+		}
 		if t := query.GetDynamicFilterTable(); t != "" {
 			v.Key = fmt.Sprintf("%s.%s", t, v.Key)
 		}
