@@ -40,13 +40,13 @@ func (db *repo) list(gq *gorm.DB, query dbcore.QueryModel) (pr interface{}, err 
 	q = db.Join(q, query)
 	q = db.handleHints(q, query)
 	for _, sel := range query.GetSelects() {
-		q = q.Select(sel.Columns, db.handleArgs(sel.Args))
+		q = q.Select(sel.Columns, db.handleArgs(sel.Args)...)
 	}
 
 	typ := reflect.TypeOf(query.GetModel())
 	result := reflect.New(reflect.SliceOf(typ)).Elem().Interface()
 	if table, args := query.GetTable(); table != "" {
-		q.Table(table, db.handleArgs(args))
+		q.Table(table, db.handleArgs(args)...)
 	}
 	for _, field := range query.GetGroupBy() {
 		q = q.Group(field)
@@ -85,11 +85,11 @@ func (db *repo) Get(query dbcore.QueryModel) (item interface{}, err error.ErrorM
 	q = db.Join(q, query)
 	q = q.Limit(1)
 	for _, sel := range query.GetSelects() {
-		q = q.Select(sel.Columns, db.handleArgs(sel.Args))
+		q = q.Select(sel.Columns, db.handleArgs(sel.Args)...)
 	}
 	result := query.GetModel()
 	if table, args := query.GetTable(); table != "" {
-		q.Table(table, db.handleArgs(args))
+		q.Table(table, db.handleArgs(args)...)
 	}
 	dbc := q.Find(result)
 	if dbc.Error != nil {
@@ -141,7 +141,7 @@ func (db *repo) handleArgs(args []interface{}) []interface{} {
 			q := db.GetGormDB(query)
 			q, _ = db.Filter(q, query)
 			for _, sel := range query.GetSelects() {
-				q = q.Select(sel.Columns, sel.Args)
+				q = q.Select(sel.Columns, sel.Args...)
 			}
 			if table, _ := query.GetTable(); table != "" {
 				q.Table(query.GetTable())

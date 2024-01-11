@@ -8,7 +8,7 @@ import (
 func (db *repo) Join(gq *gorm.DB, query dbcore.QueryModel) *gorm.DB {
 	joins := query.GetJoin()
 	for _, join := range joins {
-		gq = gq.Joins(join.Query, db.handleArgs(join.Args))
+		gq = gq.Joins(join.Query, db.handleArgs(join.Args)...)
 	}
 	return gq
 }
