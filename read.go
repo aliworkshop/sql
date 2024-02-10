@@ -51,7 +51,10 @@ func (db *repo) list(gq *gorm.DB, query dbcore.QueryModel) (pr interface{}, err 
 	for _, field := range query.GetGroupBy() {
 		q = q.Group(field)
 	}
-	dbc := q.Offset(offset).Limit(query.GetPageSize()).Find(&result)
+	if query.GetPageSize() != -1 {
+		q = q.Offset(offset).Limit(query.GetPageSize())
+	}
+	dbc := q.Find(&result)
 	if dbc.Error != nil {
 		return nil, errorHandler(error.Internal(dbc.Error))
 	}
