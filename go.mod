@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/aliworkshop/configer v1.1.0
-	github.com/aliworkshop/dbcore v1.6.6
+	github.com/aliworkshop/dbcore v1.6.7
 	github.com/aliworkshop/dfilter v1.3.0
 	github.com/aliworkshop/error v1.1.0
 	github.com/shopspring/decimal v1.3.1

@@ -10,11 +10,13 @@ func (db *repo) sort(con *gorm.DB, query dbcore.QueryModel) (q *gorm.DB, err err
 	q = con
 	sort := query.GetSort()
 	if sort != nil {
-		for _, s := range sort {
-			sort := s.Field
+		for field, s := range sort {
+			if s.ReplaceWith != "" {
+				field = s.ReplaceWith
+			}
 			if s.Order != "" {
 				if s.Order.IsDescending() {
-					sort += " DESC"
+					field += " DESC"
 				} else if !s.Order.IsAscending() {
 					err = errorHandler(error.New().
 						WithType(error.TypeValidation).
@@ -23,7 +25,7 @@ func (db *repo) sort(con *gorm.DB, query dbcore.QueryModel) (q *gorm.DB, err err
 					return
 				}
 			}
-			q = q.Order(sort)
+			q = q.Order(field)
 		}
 	}
 	return
