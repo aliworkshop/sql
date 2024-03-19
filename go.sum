@@ -44,6 +44,8 @@ github.com/aliworkshop/dbcore v1.6.6 h1:jBRo+v/xD0vO4c5HsohpHHJD5q8JrxgB4KLrvnFN
 github.com/aliworkshop/dbcore v1.6.6/go.mod h1:2OXpWvkU8uVfRkKm7obmuQMqt6ZxlGH4vgR+Ppx2PIg=
 github.com/aliworkshop/dbcore v1.6.7 h1:uTfdrndHBzI/GcGU1vvnfegePxee8VfgUfOzoAstjTc=
 github.com/aliworkshop/dbcore v1.6.7/go.mod h1:2OXpWvkU8uVfRkKm7obmuQMqt6ZxlGH4vgR+Ppx2PIg=
+github.com/aliworkshop/dbcore v1.6.8 h1:4M9rMyJ5nbnPekv6TFrtm9z4b8izheio1Ibuj6g7Bl8=
+github.com/aliworkshop/dbcore v1.6.8/go.mod h1:2OXpWvkU8uVfRkKm7obmuQMqt6ZxlGH4vgR+Ppx2PIg=
 github.com/aliworkshop/dfilter v1.3.0 h1:VdJMFlmkWv+rIWwZ5Nf2JuCVrwy11VldXiVKoNp/XyY=
 github.com/aliworkshop/dfilter v1.3.0/go.mod h1:woPFEcH7ERwOfJymbN3MgGn+csUbfZE046cTN8Wc2NU=
 github.com/aliworkshop/error v1.1.0 h1:3FweSjOopjK77cUIf7Uc3xp5c4lwP7v7lHAuM9KNWvA=
