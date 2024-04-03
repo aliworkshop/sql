@@ -22,7 +22,10 @@ func (db *repo) getTx(query dbcore.QueryModel) *gorm.DB {
 func (db *repo) StartTransaction(query dbcore.QueryModel) (err error.ErrorModel) {
 	tx := db.getTx(query)
 	if tx == nil {
-		tx = db.gormDB.Begin().Model(query.GetModel())
+		tx = db.gormDB.Begin()
+		if query.GetBody() == nil {
+			tx = tx.Model(query.GetModel())
+		}
 	}
 	if tx.Error != nil {
 		err = error.Internal(tx.Error)
