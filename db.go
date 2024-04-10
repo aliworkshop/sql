@@ -55,7 +55,7 @@ func (db *repo) GetGormDB(queries ...dbcore.QueryModel) *gorm.DB {
 		}
 		tr := db.GetTransaction(q)
 		if tr != nil {
-			return tr.(*gorm.DB)
+			return tr.(*gorm.DB).Model(q.GetModel())
 		}
 		body := q.GetBody()
 		if body != nil {
