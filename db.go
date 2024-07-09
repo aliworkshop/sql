@@ -12,6 +12,7 @@ import (
 	"github.com/aliworkshop/dbcore"
 	"github.com/aliworkshop/error"
 
+	"gorm.io/driver/clickhouse"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -114,10 +115,11 @@ func (db *repo) Initialize() error.ErrorModel {
 			DSN:                  connStr,
 			PreferSimpleProtocol: true,
 		})
+	case "clickhouse":
+		dialect = clickhouse.Open(connStr)
 	}
 	d, err := gorm.Open(dialect, &gorm.Config{
-		SkipDefaultTransaction: true,
-		Logger:                 newLogger,
+		Logger: newLogger,
 		NowFunc: func() time.Time {
 			return time.Now().UTC()
 		},
