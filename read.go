@@ -144,10 +144,13 @@ func (db *repo) handleArgs(args []interface{}) []interface{} {
 			q := db.GetGormDB(query)
 			q, _ = db.Filter(q, query)
 			for _, sel := range query.GetSelects() {
-				q = q.Select(sel.Columns, sel.Args...)
+				q = q.Select(sel.Columns, db.handleArgs(sel.Args)...)
 			}
-			if table, _ := query.GetTable(); table != "" {
-				q.Table(query.GetTable())
+			if table, tableArgs := query.GetTable(); table != "" {
+				q.Table(table, db.handleArgs(tableArgs)...)
+			}
+			if qs := query.GetQuery(); qs != "" {
+				q = q.Raw(qs)
 			}
 			for _, field := range query.GetGroupBy() {
 				q = q.Group(field)

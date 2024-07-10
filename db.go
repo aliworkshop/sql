@@ -67,8 +67,10 @@ func (db *repo) GetGormDB(queries ...dbcore.QueryModel) *gorm.DB {
 				return gormDb.Model(body)
 			}
 		}
-		model := q.GetModel()
-		if model != nil {
+		if tableName, args := q.GetTable(); tableName != "" {
+			return gormDb.Table(tableName, args)
+		}
+		if model := q.GetModel(); model != nil {
 			return gormDb.Model(model)
 		}
 	}

@@ -6,7 +6,7 @@ toolchain go1.21.6
 
 require (
 	github.com/aliworkshop/configer v1.1.0
-	github.com/aliworkshop/dbcore v1.6.8
+	github.com/aliworkshop/dbcore v1.7.1
 	github.com/aliworkshop/dfilter v1.3.0
 	github.com/aliworkshop/error v1.1.0
 	github.com/shopspring/decimal v1.4.0
