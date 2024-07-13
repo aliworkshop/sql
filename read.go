@@ -11,6 +11,9 @@ import (
 func (db *repo) count(gq *gorm.DB, query dbcore.QueryModel) (uint64, error.ErrorModel) {
 	gq, _ = db.Filter(gq, query)
 	gq = db.Join(gq, query)
+	if table, args := query.GetTable(); table != "" {
+		gq.Table(table, db.handleArgs(args)...)
+	}
 	var c int64
 	r := gq.Count(&c)
 	if r.Error != nil {
