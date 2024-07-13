@@ -143,6 +143,7 @@ func (db *repo) handleArgs(args []interface{}) []interface{} {
 			query := dbcore.GetQueryModel(arg)
 			q := db.GetGormDB(query)
 			q, _ = db.Filter(q, query)
+			q = db.Join(q, query)
 			for _, sel := range query.GetSelects() {
 				q = q.Select(sel.Columns, db.handleArgs(sel.Args)...)
 			}
