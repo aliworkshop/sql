@@ -1,7 +1,7 @@
 debug: true
-dialect: mysql
-connectionString: user:password@tcp(localhost:3306)/db_name?parseTime=true
-maxIdleConnections: 5
-maxOpenConnections: 10
-maxLifetimeSeconds: 10
+dialect: postgres
+connectionString: postgresql://postgres:secret@localhost:54321/gateway?sslmode=disable&client_encoding=UTF8
+maxIdleConnections: 10
+maxOpenConnections: 30 # 30–50 is good for most services
+maxLifetimeSeconds: 300
 maxIdleTimeSeconds: 60

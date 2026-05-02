@@ -15,7 +15,7 @@ func (db *repo) sum(g *gorm.DB, query dbcore.QueryModel, key string) (decimal.De
 	for _, field := range query.GetGroupBy() {
 		q = q.Group(field)
 	}
-	r := q.Select(fmt.Sprintf("ifnull(sum(%v), 0)", key))
+	r := q.Select(fmt.Sprintf("COALESCE(sum(%v), 0)", key))
 	if r.Error != nil {
 		return decimal.Zero, errorHandler(errors.Internal(r.Error))
 	}

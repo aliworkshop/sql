@@ -4,7 +4,6 @@ import (
 	"github.com/aliworkshop/dbcore"
 	"github.com/aliworkshop/errors"
 	"gorm.io/gorm"
-	"gorm.io/hints"
 	"reflect"
 )
 
@@ -14,6 +13,14 @@ func (db *repo) count(gq *gorm.DB, query dbcore.QueryModel) (uint64, errors.Erro
 	if table, args := query.GetTable(); table != "" {
 		gq.Table(table, db.handleArgs(args)...)
 	}
+	for _, field := range query.GetGroupBy() {
+		gq = gq.Group(field)
+	}
+
+	if query.IsUnscoped() {
+		gq.Unscoped()
+	}
+
 	var c int64
 	r := gq.Count(&c)
 	if r.Error != nil {
@@ -41,7 +48,6 @@ func (db *repo) list(gq *gorm.DB, query dbcore.QueryModel) (pr interface{}, err 
 	}
 	offset := (query.GetPage() - 1) * query.GetPageSize()
 	q = db.Join(q, query)
-	q = db.handleHints(q, query)
 	for _, sel := range query.GetSelects() {
 		q = q.Select(sel.Columns, db.handleArgs(sel.Args)...)
 	}
@@ -54,8 +60,14 @@ func (db *repo) list(gq *gorm.DB, query dbcore.QueryModel) (pr interface{}, err 
 	for _, field := range query.GetGroupBy() {
 		q = q.Group(field)
 	}
+	for _, relation := range query.GetPreloads() {
+		q = q.Preload(relation.Preload, relation.Args...)
+	}
 	if query.GetPageSize() != -1 {
 		q = q.Offset(offset).Limit(query.GetPageSize())
+	}
+	if query.IsUnscoped() {
+		q.Unscoped()
 	}
 	dbc := q.Find(&result)
 	if dbc.Error != nil {
@@ -97,6 +109,9 @@ func (db *repo) Get(query dbcore.QueryModel) (item interface{}, err errors.Error
 	if table, args := query.GetTable(); table != "" {
 		q.Table(table, db.handleArgs(args)...)
 	}
+	for _, relation := range query.GetPreloads() {
+		q = q.Preload(relation.Preload, relation.Args...)
+	}
 	dbc := q.Find(result)
 	if dbc.Error != nil {
 		err = errors.Internal(dbc.Error)
@@ -119,27 +134,6 @@ func (db *repo) Exist(query dbcore.QueryModel) (exists bool, err errors.ErrorMod
 	return count > 0, nil
 }
 
-func (db *repo) handleHints(gq *gorm.DB, query dbcore.QueryModel) *gorm.DB {
-	h := query.GetHint()
-	if h != nil {
-		switch h.Kind {
-		case dbcore.HintForce:
-			if h.Name != "" {
-				gq.Clauses(hints.ForceIndex(h.Name))
-			}
-		case dbcore.HintUse:
-			if h.Name != "" {
-				gq.Clauses(hints.UseIndex(h.Name))
-			}
-		case dbcore.HintIgnore:
-			if h.Name != "" {
-				gq.Clauses(hints.IgnoreIndex(h.Name))
-			}
-		}
-	}
-	return gq
-}
-
 func (db *repo) handleArgs(args []interface{}) []interface{} {
 	for i, arg := range args {
 		if dbcore.IsQueryModel(arg) {
@@ -153,8 +147,8 @@ func (db *repo) handleArgs(args []interface{}) []interface{} {
 			if table, tableArgs := query.GetTable(); table != "" {
 				q.Table(table, db.handleArgs(tableArgs)...)
 			}
-			if qs := query.GetQuery(); qs != "" {
-				q = q.Raw(qs)
+			if qs, qArgs := query.GetQuery(); qs != "" {
+				q = q.Raw(qs, qArgs...)
 			}
 			for _, field := range query.GetGroupBy() {
 				q = q.Group(field)

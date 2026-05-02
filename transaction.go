@@ -60,9 +60,6 @@ func (db *repo) RollbackTransaction(query dbcore.QueryModel) (err errors.ErrorMo
 
 func (db *repo) FinalizeTransaction(ctx context.Context, query dbcore.QueryModel,
 	err errors.ErrorModel) errors.ErrorModel {
-	if err == nil {
-		err = errors.HandleError(ctx.Err())
-	}
 	if err != nil {
 		e := db.RollbackTransaction(query)
 		if rErr := errors.HandleError(e); rErr != nil {
