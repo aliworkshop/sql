@@ -1,6 +1,7 @@
 package sql
 
-type sqlConfig struct {
+type config struct {
+	Debug              bool
 	Dialect            string
 	Host               string
 	Port               string
@@ -11,9 +12,5 @@ type sqlConfig struct {
 	MaxIdleConnections *int
 	MaxOpenConnections *int
 	MaxLifetimeSeconds *int
-}
-
-type config struct {
-	Debug bool
-	Sql   sqlConfig
+	MaxIdleTimeSeconds *int
 }
