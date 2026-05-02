@@ -13,13 +13,7 @@ func (db *repo) Upsert(query dbcore.QueryModel) (err errors.ErrorModel) {
 		return
 	}
 	q := db.GetGormDB(query)
-	q, filtered := db.Filter(q, query)
-	if !filtered {
-		err = errorHandler(errors.New().
-			WithType(errors.TypeValidation).
-			WithDetail("query must be set..no query is set as filter"))
-		return
-	}
+	q, _ = db.Filter(q, query)
 	dbc := q.
 		Clauses(clause.OnConflict{
 			UpdateAll: true,
