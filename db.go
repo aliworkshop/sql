@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/aliworkshop/dbcore"
-	"github.com/aliworkshop/error"
+	errors "github.com/aliworkshop/error"
 
 	"gorm.io/driver/clickhouse"
 	"gorm.io/driver/mysql"
@@ -27,11 +27,7 @@ type repo struct {
 func NewRepository(configRegistry configer.Registry, parser dbcore.QueryParser) dbcore.RDBMS {
 	db := new(repo)
 	// load config
-	err := configRegistry.Root().Unmarshal(&db.config)
-	if err != nil {
-		panic(err)
-	}
-	err = configRegistry.Unmarshal(&db.config.Sql)
+	err := configRegistry.Unmarshal(&db.config)
 	if err != nil {
 		panic(err)
 	}
@@ -49,31 +45,27 @@ func (db *repo) GetGormDB(queries ...dbcore.QueryModel) *gorm.DB {
 	if queries != nil && len(queries) > 0 {
 		q = queries[0]
 	}
-	gormDb := db.gormDB
-	if q != nil {
-		if db := q.GetDB(); db != nil {
-			return db.(*gorm.DB)
-		}
-		tr := db.GetTransaction(q)
-		if tr != nil {
-			return tr.(*gorm.DB).Model(q.GetModel())
-		}
-		body := q.GetBody()
-		if body != nil {
-			switch body.(type) {
-			case map[string]interface{}:
-				break
-			default:
-				return gormDb.Model(body)
-			}
-		}
-		if tableName, args := q.GetTable(); tableName != "" {
-			return gormDb.Table(tableName, args)
-		}
-		if model := q.GetModel(); model != nil {
-			return gormDb.Model(model)
+	gormDb := db.gormDB.WithContext(q.GetContext())
+	if db := q.GetDB(); db != nil {
+		return db.(*gorm.DB)
+	}
+	tr := db.GetTransaction(q)
+	if tr != nil {
+		return tr.(*gorm.DB).Model(q.GetModel())
+	}
+	body := q.GetBody()
+	if body != nil {
+		if v, ok := body.(dbcore.Modeler); ok {
+			return gormDb.Model(v)
 		}
 	}
+	if tableName, args := q.GetTable(); tableName != "" {
+		return gormDb.Table(tableName, args)
+	}
+	if model := q.GetModel(); model != nil {
+		return gormDb.Model(model)
+	}
+
 	return gormDb
 }
 
@@ -85,18 +77,18 @@ func (db *repo) GetTransaction(query dbcore.QueryModel) (transaction interface{}
 	return query.GetTransaction()
 }
 
-func (db *repo) Initialize() error.ErrorModel {
-	if db.config.Sql.Dialect == "" {
+func (db *repo) Initialize() errors.ErrorModel {
+	if db.config.Dialect == "" {
 		panic("sql dialect is not determined")
 	}
-	connStr := db.config.Sql.ConnectionString
+	connStr := db.config.ConnectionString
 	if connStr == "" {
 		connStr = fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s",
-			db.config.Sql.Host,
-			db.config.Sql.Port,
-			db.config.Sql.Username,
-			db.config.Sql.DbName,
-			db.config.Sql.Password,
+			db.config.Host,
+			db.config.Port,
+			db.config.Username,
+			db.config.DbName,
+			db.config.Password,
 		)
 	}
 	newLogger := logger.New(
@@ -109,7 +101,7 @@ func (db *repo) Initialize() error.ErrorModel {
 		},
 	)
 	var dialect gorm.Dialector
-	switch db.config.Sql.Dialect {
+	switch db.config.Dialect {
 	case "mysql":
 		dialect = mysql.Open(connStr)
 	case "postgres":
@@ -127,21 +119,25 @@ func (db *repo) Initialize() error.ErrorModel {
 		},
 	})
 	if err != nil {
-		return error.Internal(err)
+		return errors.Internal(err)
 	}
 	sqlDB, err := d.DB()
 	if err != nil {
-		return error.Internal(err)
+		return errors.Internal(err)
 	}
-	if db.config.Sql.MaxIdleConnections != nil {
-		sqlDB.SetMaxIdleConns(*db.config.Sql.MaxIdleConnections)
+	if db.config.MaxIdleConnections != nil {
+		sqlDB.SetMaxIdleConns(*db.config.MaxIdleConnections)
 	}
-	if db.config.Sql.MaxOpenConnections != nil {
-		sqlDB.SetMaxOpenConns(*db.config.Sql.MaxOpenConnections)
+	if db.config.MaxOpenConnections != nil {
+		sqlDB.SetMaxOpenConns(*db.config.MaxOpenConnections)
 	}
-	if db.config.Sql.MaxLifetimeSeconds != nil {
-		sqlDB.SetConnMaxLifetime(time.Second * time.Duration(*db.config.Sql.MaxLifetimeSeconds))
+	if db.config.MaxLifetimeSeconds != nil {
+		sqlDB.SetConnMaxLifetime(time.Second * time.Duration(*db.config.MaxLifetimeSeconds))
 	}
+	if db.config.MaxIdleTimeSeconds != nil {
+		sqlDB.SetConnMaxIdleTime(time.Second * time.Duration(*db.config.MaxIdleTimeSeconds))
+	}
+
 	if db.config.Debug {
 		fmt.Println("debug is true")
 		d = d.Debug()
@@ -150,17 +146,17 @@ func (db *repo) Initialize() error.ErrorModel {
 	return nil
 }
 
-func (db *repo) Ping(ctx context.Context) error.ErrorModel {
+func (db *repo) Ping(ctx context.Context) errors.ErrorModel {
 	if db.gormDB == nil {
-		return error.DefaultValidationError.WithDetail("db not initialized")
+		return errors.Validation().WithDetail("db not initialized")
 	}
 	sqlDb, err := db.gormDB.DB()
 	if err != nil {
-		return error.HandleError(err)
+		return errors.HandleError(err)
 	}
 	err = sqlDb.PingContext(ctx)
 	if err != nil {
-		return error.Internal(err)
+		return errors.Internal(err)
 	}
 	return nil
 }
