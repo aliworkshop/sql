@@ -2,11 +2,11 @@ package sql
 
 import (
 	"github.com/aliworkshop/dbcore"
-	"github.com/aliworkshop/error"
+	"github.com/aliworkshop/errors"
 	"gorm.io/gorm"
 )
 
-func (db *repo) sort(con *gorm.DB, query dbcore.QueryModel) (q *gorm.DB, err error.ErrorModel) {
+func (db *repo) sort(con *gorm.DB, query dbcore.QueryModel) (q *gorm.DB, err errors.ErrorModel) {
 	q = con
 	sort := query.GetSort()
 	if sort != nil {
@@ -18,8 +18,8 @@ func (db *repo) sort(con *gorm.DB, query dbcore.QueryModel) (q *gorm.DB, err err
 				if s.Order.IsDescending() {
 					field += " DESC"
 				} else if !s.Order.IsAscending() {
-					err = errorHandler(error.New().
-						WithType(error.TypeValidation).
+					err = errorHandler(errors.New().
+						WithType(errors.TypeValidation).
 						WithId("InvalidSortQuery").
 						WithDetail("invalid sort order. order takes one of values of `DESC` or `ASC`"))
 					return

@@ -22,7 +22,7 @@ type Category struct {
 }
 
 func (Category) TableName() string {
-	return "category"
+	return "accounting"
 }
 
 func TestRepo_Count(t *testing.T) {
@@ -43,17 +43,11 @@ func TestRepo_Count(t *testing.T) {
 
 	q := dbcore.NewQuery().WithModelFunc(func() dbcore.Modeler {
 		return new(Category)
-	}).WithFilter(dbcore.NewFilter().WithOrMatch(&dbcore.Match{
-		Key:      "test",
-		Value:    1,
-		Operator: dbcore.Equal,
-	}).WithId(2)).
-		WithFilter(dbcore.NewFilter().WithAndMatch(&dbcore.Match{
-			Key:      "some_key",
-			Value:    4,
-			Operator: dbcore.NotEqual,
-		}).WithId(5))
-	count, err := db.Count(q)
+	}).WithSelect("SUM(credit_amount) - SUM(dept_amount) as balance").WithFilter(dbcore.NewFilter().WithOrMatch(&dbcore.Match{
+		Key:   "user_id",
+		Value: 12,
+	})).WithSorts(dbcore.SortItem{Field: "play_count", ReplaceWith: "playCount(id)"})
+	count, err := db.Get(q)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, count)
 }

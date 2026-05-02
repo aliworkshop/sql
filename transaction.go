@@ -3,7 +3,7 @@ package sql
 import (
 	"context"
 	"github.com/aliworkshop/dbcore"
-	"github.com/aliworkshop/error"
+	"github.com/aliworkshop/errors"
 	"gorm.io/gorm"
 )
 
@@ -19,59 +19,59 @@ func (db *repo) getTx(query dbcore.QueryModel) *gorm.DB {
 	return nil
 }
 
-func (db *repo) StartTransaction(query dbcore.QueryModel) (err error.ErrorModel) {
+func (db *repo) StartTransaction(query dbcore.QueryModel) (err errors.ErrorModel) {
 	tx := db.getTx(query)
 	if tx == nil {
 		tx = db.gormDB.Begin()
 	}
 	if tx.Error != nil {
-		err = error.Internal(tx.Error)
+		err = errors.Internal(tx.Error)
 		return
 	}
 	query.SetTransaction(tx)
 	return
 }
 
-func (db *repo) CommitTransaction(query dbcore.QueryModel) (err error.ErrorModel) {
+func (db *repo) CommitTransaction(query dbcore.QueryModel) (err errors.ErrorModel) {
 	tx := db.getTx(query)
 	if tx == nil {
 		return
 	}
 	dbc := tx.Commit()
 	if dbc.Error != nil {
-		err = error.Internal(dbc.Error)
+		err = errors.Internal(dbc.Error)
 		return
 	}
 	return
 }
 
-func (db *repo) RollbackTransaction(query dbcore.QueryModel) (err error.ErrorModel) {
+func (db *repo) RollbackTransaction(query dbcore.QueryModel) (err errors.ErrorModel) {
 	tx := db.getTx(query)
 	if tx == nil {
 		return
 	}
 	dbc := tx.Rollback()
 	if dbc.Error != nil {
-		err = error.Internal(dbc.Error)
+		err = errors.Internal(dbc.Error)
 		return
 	}
 	return
 }
 
 func (db *repo) FinalizeTransaction(ctx context.Context, query dbcore.QueryModel,
-	err error.ErrorModel) error.ErrorModel {
+	err errors.ErrorModel) errors.ErrorModel {
 	if err == nil {
-		err = error.HandleError(ctx.Err())
+		err = errors.HandleError(ctx.Err())
 	}
 	if err != nil {
 		e := db.RollbackTransaction(query)
-		if rErr := error.HandleError(e); rErr != nil {
+		if rErr := errors.HandleError(e); rErr != nil {
 			return rErr
 		}
 		return err
 	}
 	err = db.CommitTransaction(query)
-	if err = error.HandleError(err); err != nil {
+	if err = errors.HandleError(err); err != nil {
 		return err
 	}
 	return nil

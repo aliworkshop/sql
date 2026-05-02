@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/aliworkshop/dbcore"
-	errors "github.com/aliworkshop/error"
+	"github.com/aliworkshop/errors"
 
 	"gorm.io/driver/clickhouse"
 	"gorm.io/driver/mysql"

@@ -1,10 +1,10 @@
 package sql
 
 import (
-	"github.com/aliworkshop/error"
+	"github.com/aliworkshop/errors"
 )
 
-func errorHandler(err error.ErrorModel) error.ErrorModel {
+func errorHandler(err errors.ErrorModel) errors.ErrorModel {
 	err = err.WithSource("sql")
 	return err
 }
