@@ -1,12 +1,10 @@
 module github.com/aliworkshop/sql
 
-go 1.21
-
-toolchain go1.21.6
+go 1.24.6
 
 require (
 	github.com/aliworkshop/configer v1.1.0
-	github.com/aliworkshop/dbcore v1.7.1
+	github.com/aliworkshop/dbcore v1.8.0
 	github.com/aliworkshop/dfilter v1.3.0
 	github.com/aliworkshop/error v1.1.0
 	github.com/shopspring/decimal v1.4.0
@@ -53,7 +51,7 @@ require (
 	go.opentelemetry.io/otel v1.26.0 // indirect
 	go.opentelemetry.io/otel/trace v1.26.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
-	golang.org/x/sys v0.19.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
