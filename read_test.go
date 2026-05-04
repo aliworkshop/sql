@@ -1,10 +1,8 @@
 package sql
 
 import (
-	"github.com/aliworkshop/configer"
 	"github.com/aliworkshop/dbcore"
 	"github.com/stretchr/testify/assert"
-	"os"
 	"testing"
 	"time"
 )
@@ -26,21 +24,6 @@ func (Category) TableName() string {
 }
 
 func TestRepo_Count(t *testing.T) {
-	registry := configer.New()
-	registry.SetConfigType("yaml")
-	f, err := os.Open("./config.sample.yaml")
-	if err != nil {
-		panic("cannot read config: " + err.Error())
-	}
-	err = registry.ReadConfig(f)
-	if err != nil {
-		panic("cannot read config" + err.Error())
-	}
-
-	db := NewRepository(registry, nil)
-	err = db.Initialize()
-	assert.Nil(t, err)
-
 	q := dbcore.NewQuery().WithModelFunc(func() dbcore.Modeler {
 		return new(Category)
 	}).WithSelect("SUM(credit_amount) - SUM(dept_amount) as balance").WithFilter(dbcore.NewFilter().WithOrMatch(&dbcore.Match{

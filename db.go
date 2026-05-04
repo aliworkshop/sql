@@ -6,6 +6,7 @@ import (
 	"github.com/aliworkshop/configer"
 	"gorm.io/gorm/logger"
 	"log"
+	"log/slog"
 	"os"
 	"time"
 
@@ -22,6 +23,7 @@ type repo struct {
 	config      config
 	queryParser dbcore.QueryParser
 	gormDB      *gorm.DB
+	logger      *slog.Logger
 }
 
 func NewRepository(configRegistry configer.Registry, parser dbcore.QueryParser) dbcore.RDBMS {
@@ -33,6 +35,7 @@ func NewRepository(configRegistry configer.Registry, parser dbcore.QueryParser) 
 	}
 	//
 	db.queryParser = parser
+	db.logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})).With("module", "sql")
 	return db
 }
 

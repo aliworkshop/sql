@@ -73,3 +73,22 @@ func (db *repo) FinalizeTransaction(ctx context.Context, query dbcore.QueryModel
 	}
 	return nil
 }
+
+func (db *repo) RunInTransaction(ctx context.Context, fn func(dbcore.QueryModel) errors.ErrorModel, label string) errors.ErrorModel {
+	q := dbcore.NewQuery().WithContext(ctx)
+	if err := db.StartTransaction(q); err != nil {
+		db.logger.Error("start tx", "op", label, "err", err)
+		return err
+	}
+	var txErr errors.ErrorModel
+	defer func() {
+		if e := db.FinalizeTransaction(context.Background(), q, txErr); e != nil {
+			db.logger.Error("finalize tx", "op", label, "err", e)
+		}
+	}()
+	if txErr = fn(q); txErr != nil {
+		db.logger.Error("tx step failed", "op", label, "err", txErr)
+		return txErr
+	}
+	return nil
+}

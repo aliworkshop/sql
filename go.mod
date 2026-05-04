@@ -4,7 +4,7 @@ go 1.24.6
 
 require (
 	github.com/aliworkshop/configer v1.1.0
-	github.com/aliworkshop/dbcore v1.8.2
+	github.com/aliworkshop/dbcore v1.8.3
 	github.com/aliworkshop/dfilter v1.3.0
 	github.com/aliworkshop/errors v1.5.3
 	github.com/jackc/pgx/v5 v5.2.0
