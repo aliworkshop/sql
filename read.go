@@ -153,6 +153,13 @@ func (db *repo) handleArgs(args []interface{}) []interface{} {
 			for _, field := range query.GetGroupBy() {
 				q = q.Group(field)
 			}
+			offset := (query.GetPage() - 1) * query.GetPageSize()
+			if query.GetPageSize() != -1 {
+				q = q.Offset(offset).Limit(query.GetPageSize())
+			}
+			if query.IsUnscoped() {
+				q.Unscoped()
+			}
 			args[i] = q
 		}
 	}
