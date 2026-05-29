@@ -1,6 +1,6 @@
 module github.com/aliworkshop/sql
 
-go 1.24.6
+go 1.24.3
 
 require (
 	github.com/aliworkshop/configer v1.1.0
@@ -14,13 +14,11 @@ require (
 	gorm.io/driver/mysql v1.4.6
 	gorm.io/driver/postgres v1.4.7
 	gorm.io/gorm v1.25.10
-	gorm.io/hints v1.1.1
 )
 
 require (
 	github.com/ClickHouse/ch-go v0.61.5 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.26.0 // indirect
-	github.com/aliworkshop/error v1.5.1 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -38,7 +36,6 @@ require (
 	github.com/klauspost/compress v1.17.8 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/nicksnyder/go-i18n/v2 v2.6.1 // indirect
 	github.com/paulmach/orb v0.11.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/pierrec/lz4/v4 v4.1.21 // indirect
